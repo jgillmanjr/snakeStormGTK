@@ -1,1 +1,3 @@
 *.pyc
+ignoreThisDir/
+venv/
