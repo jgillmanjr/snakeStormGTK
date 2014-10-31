@@ -39,14 +39,13 @@ class main:
 		self.builder.connect_signals(self.handlers)
 		### End Handlers ###
 
-		## Show the mainWindow ##
-		self.widgets['mainWindow'].show()
-
 	def finalSetup(self):
 		""" Complete setup that needs to occur after emitting the main object to the required modules. """
 		### Combobox Setup###
 		configWindows.buildListBox('versionCombo', self.availableVersions) # API Version Combobox
 		configWindows.buildListBox('methodCombo') # API Method Combobox
+
+		sigHandlers.showWindow(self.widgets['mainWindow']) # Show the main window
 
 	def main(self):
 		""" Start. """

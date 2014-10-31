@@ -52,4 +52,8 @@ def openMethodDialog(*args, **kwargs):
 	mainObj.widgets['newMethod'].run()
 
 def showWindow(*args, **kwargs):
-	args[0].show()
+	""" Run a dialog or show a window. """
+	try:
+		args[0].run()
+	except AttributeError: # Regular windows don't have run
+		args[0].show()
