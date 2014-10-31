@@ -42,8 +42,9 @@ class main:
 	def finalSetup(self):
 		""" Complete setup that needs to occur after emitting the main object to the required modules. """
 		### Combobox Setup###
-		configWindows.buildListBox('versionCombo', self.availableVersions) # API Version Combobox
+		configWindows.buildListBox('versionCombo', listValues = self.availableVersions) # API Version Combobox
 		configWindows.buildListBox('methodCombo') # API Method Combobox
+		configWindows.buildListBox('methodSelector', valueStore = 'methodComboStore')
 
 		sigHandlers.showWindow(self.widgets['mainWindow']) # Show the main window
 
