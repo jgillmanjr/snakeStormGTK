@@ -12,7 +12,7 @@ class main:
 		### Initial Storm Connection Stuff ###
 		self.connParams = {'username': 'user', 'password': 'pass', 'baseURI': 'https://api.stormondemand.com', 'apiPort': 443, 'verify': True, 'version': 'bleed'} # Initial
 		self.stormConn = snakeStorm.connection(**self.connParams)
-		self.availableVersions = (['v1'], ['bleed']) # Available API versions (will most likely be 'v1' and 'bleed' for a while..)
+		self.availableVersions = ('v1', 'bleed') # Available API versions (will most likely be 'v1' and 'bleed' for a while..)
 
 		self.gladeFile = 'snakeStormGTK.glade'
 		self.builder = Gtk.Builder()
@@ -43,7 +43,7 @@ class main:
 		""" Complete setup that needs to occur after emitting the main object to the required modules. """
 		### Combobox Setup###
 		configWindows.buildListBox('versionCombo', listValues = self.availableVersions) # API Version Combobox
-		configWindows.buildListBox('methodCombo') # API Method Combobox
+		configWindows.buildListBox('methodCombo', listValues = snakeStorm.listApiMethods(self.stormConn.version)) # API Method Combobox
 		configWindows.buildListBox('methodSelector', valueStore = 'methodComboStore')
 
 		sigHandlers.showWindow(self.widgets['mainWindow']) # Show the main window

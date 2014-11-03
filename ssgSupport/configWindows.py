@@ -24,7 +24,7 @@ def buildListBox(comboWidgetName, listValues = None, valueStore = None):
 
 		if listValues is not None: # This obviously only runs for new valueStores
 			for x in listValues:
-				mainObj.widgets[storeName].append(x)
+				mainObj.widgets[storeName].append([x])
 	else:
 		storeName	= valueStore
 
