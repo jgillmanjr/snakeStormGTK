@@ -4,17 +4,13 @@ GTK Signal Handling Operations Go Here
 from gi.repository import Gtk
 import snakeStorm
 import sptFunctions
+import configWindows
 mainObj = None # Placeholder until it gets populated
 
 def hideWindow(*args, **kwargs):
 	""" Hide a window or dialog. """
 	args[0].hide()
 	return True # Prevents windows from being destroyed
-
-def addMethod(*args, **kwargs):
-	""" Add a method to the combobox. """
-	addValue = [args[0].get_text()]
-	mainObj.widgets['methodComboStore'].append(addValue)
 
 def clearEntry(*args, **kwargs):
 	""" Clear an entry field. """
@@ -24,6 +20,20 @@ def openConnDialog(*args, **kwargs):
 	""" Open the Connection settings dialog. """
 	sptFunctions.setupConnDialog()
 	mainObj.widgets['connDialog'].run()
+
+def regenMethodList(*args, **kwargs):
+	mainObj.widgets['apiMethodList'].clear()
+	mainObj.apiMethods.clear()
+	for x in snakeStorm.listApiMethods(mainObj.stormConn.version):
+		mainObj.widgets['apiMethodList'].append([x])
+		mainObj.apiMethods[x.lower()] = snakeStorm.method(x, mainObj.stormConn)
+
+def makeRequest(*args, **kwargs):
+	""" Make the API request and return the result. """
+	apiMethod = args[0].get_text().lower()
+	if apiMethod in mainObj.apiMethods:
+		configWindows.buildTreeStore(mainObj.widgets['resultStore'], mainObj.apiMethods[apiMethod].request())
+		#print mainObj.apiMethods[apiMethod].request()
 
 def saveConnDialog(*args, **kwargs):
 	""" Save the connection Settings. """
@@ -46,10 +56,6 @@ def testConn(*args, **kwargs):
 	mainObj.widgets['messageDialog'].run()
 	mainObj.stormConn.changeBase(**mainObj.connParams) # Change back after the test
 	del test
-
-def openMethodDialog(*args, **kwargs):
-	""" Open the new method dialog. """
-	mainObj.widgets['newMethod'].run()
 
 def showWindow(*args, **kwargs):
 	""" Run a dialog or show a window. """

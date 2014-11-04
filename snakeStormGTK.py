@@ -18,6 +18,7 @@ class main:
 		self.builder = Gtk.Builder()
 		self.builder.add_from_file(self.gladeFile)
 		self.widgets = {}
+		self.apiMethods = {}
 
 		## Load widgets into dict {'widgetId': widgetObj}
 		for x in self.builder.get_objects():
@@ -26,25 +27,28 @@ class main:
 
 		### Handlers ###
 		self.handlers = {
+			'clearEntry':		sigHandlers.clearEntry,
+			'hideWindow':		sigHandlers.hideWindow,
+			'makeRequest':		sigHandlers.makeRequest,
 			'openConnDialog':	sigHandlers.openConnDialog,
 			'quit':				self.quit,
-			'hideWindow':		sigHandlers.hideWindow,
+			'regenMethodList':	sigHandlers.regenMethodList,
 			'saveConnDialog':	sigHandlers.saveConnDialog,
+			'showWindow':		sigHandlers.showWindow,
 			'testConn':			sigHandlers.testConn,
-			'addMethod':		sigHandlers.addMethod,
-			'openMethodDialog':	sigHandlers.openMethodDialog,
-			'clearEntry':		sigHandlers.clearEntry,
-			'showWindow':		sigHandlers.showWindow
 		}
 		self.builder.connect_signals(self.handlers)
 		### End Handlers ###
 
 	def finalSetup(self):
 		""" Complete setup that needs to occur after emitting the main object to the required modules. """
-		### Combobox Setup###
 		configWindows.buildListBox('versionCombo', listValues = self.availableVersions) # API Version Combobox
-		configWindows.buildListBox('methodCombo', listValues = snakeStorm.listApiMethods(self.stormConn.version)) # API Method Combobox
-		configWindows.buildListBox('methodSelector', valueStore = 'methodComboStore')
+		
+		configWindows.buildListStore('apiMethodList')
+		sigHandlers.regenMethodList()
+		configWindows.buildAutoComplete('apiMethodList', 'methodSelectEntry')
+
+		configWindows.buildResultTreeView()
 
 		sigHandlers.showWindow(self.widgets['mainWindow']) # Show the main window
 
