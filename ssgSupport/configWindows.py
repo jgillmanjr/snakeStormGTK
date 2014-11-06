@@ -43,6 +43,9 @@ def buildListStore(storeName, values = None):
 		for x in values:
 			mainObj.widgets[storeName].append([x])
 
+def is_scalar (value):
+	""" Convenience for the iterToStor functions. """
+	return isinstance(value,(type(None),str,int,float,bool,unicode))
 
 def buildAutoComplete(valueStore, entryName):
 	"""
@@ -67,13 +70,15 @@ def buildResultTreeView():
 	"""
 	Build out the treeview of the results
 	"""
-	mainObj.widgets['resultStore']	= Gtk.TreeStore(str)
-	mainObj.widgets['resultCellRenderer'] = Gtk.CellRendererText()
-	mainObj.widgets['resultColumn'] = Gtk.TreeViewColumn('Data', mainObj.widgets['resultCellRenderer'], text=0)
-	mainObj.widgets['resultView']	= Gtk.TreeView(mainObj.widgets['resultStore'])
-	mainObj.widgets['resultView'].append_column(mainObj.widgets['resultColumn'])
-	mainObj.widgets['resultScroll'].add(mainObj.widgets['resultView'])
-	mainObj.widgets['resultView'].show_now()
+	w = mainObj.widgets
+
+	w['resultStore']	= Gtk.TreeStore(str)
+	w['resultCellRenderer'] = Gtk.CellRendererText()
+	w['resultColumn'] = Gtk.TreeViewColumn('Data', w['resultCellRenderer'], text=0)
+	w['resultView']	= Gtk.TreeView(w['resultStore'])
+	w['resultView'].append_column(w['resultColumn'])
+	w['resultScroll'].add(w['resultView'])
+	w['resultView'].show_now()
 
 def buildTreeStore(store, values):
 	"""
@@ -81,10 +86,6 @@ def buildTreeStore(store, values):
 	* store: The store. Will clear and overwrite - which is useful for some things like API results.
 	* values: The data.
 	"""
-
-	def is_scalar (value):
-		""" Convenience for the iterToStor function. """
-		return isinstance(value,(type(None),str,int,float,bool,unicode))
 
 	def iterToStore(iterable, inPiter = None):
 		""" Does the actual addition to the store. Concats the key and value if value is a scalar. """
@@ -109,3 +110,89 @@ def buildTreeStore(store, values):
 	store.clear()
 
 	iterToStore(values)
+
+def buildParamTreeView():
+	"""
+	Build out the TreeView for API parameters
+	"""
+	w = mainObj.widgets
+
+	w['paramStore'] = Gtk.TreeStore(str, str, bool)
+	
+	w['paramCellKey'] = Gtk.CellRendererText(editable = True)
+	w['paramCellValue'] = Gtk.CellRendererText(editable = True)
+	w['paramCellUse'] = Gtk.CellRendererToggle(activatable = True)
+
+	w['paramColumnKey'] = Gtk.TreeViewColumn('Param Key', w['paramCellKey'], text=0)
+	w['paramColumnKey'].set_alignment(0.5)
+	w['paramColumnValue'] = Gtk.TreeViewColumn('Param Value', w['paramCellValue'], text=1)
+	w['paramColumnValue'].set_alignment(0.5)
+	w['paramColumnUse'] = Gtk.TreeViewColumn('Use Param/Value', w['paramCellUse'], active=2)
+	w['paramColumnUse'].set_alignment(0.5)
+
+	w['paramView'] = Gtk.TreeView(w['paramStore'])
+	w['paramView'].append_column(w['paramColumnKey'])
+	w['paramView'].append_column(w['paramColumnValue'])
+	w['paramView'].append_column(w['paramColumnUse'])
+
+	w['paramScroll'].add(w['paramView'])
+
+	w['paramView'].show_now()
+
+def buildParamTreeStore(methodName):
+	""" Build the Parameter Store. """
+	def valueEdited(*args, **kwargs):
+		""" What do if the value cell is edited. """
+		editIter = w['paramStore'].get_iter_from_string(args[1])
+		w['paramStore'].set_value(editIter, 1, args[2])
+
+	def keyEdited(*args, **kwargs):
+		""" What do if the key cell is edited. """
+		editIter = w['paramStore'].get_iter_from_string(args[1])
+		w['paramStore'].set_value(editIter, 0, args[2])
+
+	def toggleCheck(*args, **kwargs):
+		""" Toggle the use checkbox. """
+		w['paramStore'][args[1]][2] = not w['paramStore'][args[1]][2]
+
+	def addChild(*args, **kwargs):
+		""" Add a child row. """
+		piter = w['paramStore'].get_iter(args[1])
+		w['paramStore'].append(piter, ['', 'Value Here', False])
+
+	def iterToStore(iterable, inPiter = None):
+		""" Does the actual addition to the store. """
+		if type(iterable) is dict:
+			for k, v in iterable.iteritems():
+				if is_scalar(v):
+					appendValue = [k, str(v), False]
+					piter = w['paramStore'].append(inPiter, appendValue)
+				else:
+					appendValue = [k, '-----', False]
+					piter = w['paramStore'].append(inPiter, appendValue)
+					iterToStore(v, piter)
+		else: # list, set, etc
+			for v in iterable:
+				if is_scalar(v):
+					piter = w['paramStore'].append(inPiter, ['', str(v), False])
+				else:
+					appendValue = ['', '-----', False]
+					piter = w['paramStore'].append(inPiter, appendValue)
+					iterToStore(v, piter)
+
+
+	w = mainObj.widgets
+
+	w['paramCellValue'].connect('edited', valueEdited)
+	w['paramCellKey'].connect('edited', keyEdited)
+	w['paramCellUse'].connect('toggled', toggleCheck)
+	w['paramView'].connect('row-activated', addChild)
+
+	w['paramStore'].clear()
+
+	apiMethod = mainObj.apiMethods[methodName]
+	if len(apiMethod.listParams()) == 0: # Stock buildout with all the things
+		for k, v in apiMethod.inputParams().iteritems():
+			w['paramStore'].append(None, [k, 'Value here', False])
+	else: # Use existing params
+		iterToStore(apiMethod.listParams())

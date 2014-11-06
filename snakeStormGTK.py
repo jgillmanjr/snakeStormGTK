@@ -29,11 +29,15 @@ class main:
 		self.handlers = {
 			'clearEntry':		sigHandlers.clearEntry,
 			'hideWindow':		sigHandlers.hideWindow,
+			'hideBtnImg':		sigHandlers.hideBtnImg,
 			'makeRequest':		sigHandlers.makeRequest,
 			'openConnDialog':	sigHandlers.openConnDialog,
 			'quit':				self.quit,
 			'regenMethodList':	sigHandlers.regenMethodList,
 			'saveConnDialog':	sigHandlers.saveConnDialog,
+			'saveParams':		sigHandlers.saveParams,
+			'showBtnImg':		sigHandlers.showBtnImg,
+			'showParamsDialog':	sigHandlers.showParamsDialog,
 			'showWindow':		sigHandlers.showWindow,
 			'testConn':			sigHandlers.testConn,
 		}
@@ -48,7 +52,10 @@ class main:
 		sigHandlers.regenMethodList()
 		configWindows.buildAutoComplete('apiMethodList', 'methodSelectEntry')
 
+		self.widgets['regenMethodListButton'].get_image().hide()
+
 		configWindows.buildResultTreeView()
+		configWindows.buildParamTreeView()
 
 		sigHandlers.showWindow(self.widgets['mainWindow']) # Show the main window
 

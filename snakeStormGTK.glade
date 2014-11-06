@@ -38,16 +38,6 @@
                         <signal name="activate" handler="openConnDialog" swapped="no"/>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkMenuItem" id="methodMgrMenuItem">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Manage the API methods you want to use</property>
-                        <property name="label" translatable="yes">_Manage Methods</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="showWindow" object="methodSettingsWindow" swapped="no"/>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>
@@ -88,12 +78,37 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="requestButton">
-                <property name="label" translatable="yes">Make Request</property>
+              <object class="GtkBox" id="box3">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="makeRequest" object="methodSelectEntry" swapped="no"/>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkButton" id="requestButton">
+                    <property name="label" translatable="yes">Make Request</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="makeRequest" object="methodSelectEntry" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="editMethodParams">
+                    <property name="label" translatable="yes">Edit Method Parameters</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="showParamsDialog" object="methodSelectEntry" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -128,6 +143,148 @@
       </object>
     </child>
   </object>
+  <object class="GtkDialog" id="paramsDialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Method Parameters</property>
+    <property name="default_width">800</property>
+    <property name="default_height">600</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">mainWindow</property>
+    <signal name="delete-event" handler="hideWindow" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox2">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area2">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="paramsPush">
+                <property name="label" translatable="yes">Save Parameters</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="saveParams" object="methodLabel" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="paramClose">
+                <property name="label" translatable="yes">Close Window</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="hideWindow" object="paramsDialog" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="methodLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">method name goes here</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="underline" value="True"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="paramScroll">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMessageDialog" id="messageDialog">
+    <property name="can_focus">False</property>
+    <property name="modal">True</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messageDialog-action_area">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="messageDialogOk">
+                <property name="label" translatable="yes">Acknowledged</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="relief">half</property>
+                <signal name="clicked" handler="hideWindow" object="messageDialog" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkImage" id="regenImg">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-refresh</property>
+  </object>
   <object class="GtkDialog" id="connDialog">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Storm API Connection Settings</property>
@@ -159,6 +316,27 @@
               </packing>
             </child>
             <child>
+              <object class="GtkButton" id="regenMethodListButton">
+                <property name="label" translatable="yes">Regenerate Method List</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">You'll probably want to do this if you change the API version...</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="image">regenImg</property>
+                <property name="xalign">0.47999998927116394</property>
+                <property name="yalign">0.49000000953674316</property>
+                <signal name="clicked" handler="hideBtnImg" swapped="no"/>
+                <signal name="clicked" handler="regenMethodList" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="connDialogAccept">
                 <property name="label" translatable="yes">Accept Changes</property>
                 <property name="visible">True</property>
@@ -170,7 +348,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -184,7 +362,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
@@ -349,6 +527,7 @@
                   <object class="GtkComboBox" id="versionCombo">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <signal name="changed" handler="showBtnImg" object="regenMethodListButton" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -392,91 +571,6 @@
             <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkMessageDialog" id="messageDialog">
-    <property name="can_focus">False</property>
-    <property name="modal">True</property>
-    <property name="type_hint">dialog</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="messagedialog-vbox">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="messageDialog-action_area">
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="messageDialogOk">
-                <property name="label" translatable="yes">Acknowledged</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="relief">half</property>
-                <signal name="clicked" handler="hideWindow" object="messageDialog" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkWindow" id="methodSettingsWindow">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">API Method Setup</property>
-    <property name="window_position">center</property>
-    <signal name="delete-event" handler="hideWindow" swapped="no"/>
-    <child>
-      <object class="GtkPaned" id="paned1">
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkBox" id="box4">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkButton" id="regenMethodListButton">
-                <property name="label" translatable="yes">Regenerate Method List</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="xalign">0.47999998927116394</property>
-                <signal name="clicked" handler="regenMethodList" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="resize">True</property>
-            <property name="shrink">False</property>
           </packing>
         </child>
       </object>

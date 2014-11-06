@@ -33,12 +33,75 @@ def makeRequest(*args, **kwargs):
 	apiMethod = args[0].get_text().lower()
 	if apiMethod in mainObj.apiMethods:
 		configWindows.buildTreeStore(mainObj.widgets['resultStore'], mainObj.apiMethods[apiMethod].request())
-		#print mainObj.apiMethods[apiMethod].request()
+
+def hideBtnImg(*args, **kwargs):
+	""" Hide the image on a button. """
+	args[0].get_image().hide()
+
+def showBtnImg(*args, **kwargs):
+	""" Show the image on a button. """
+	args[0].get_image().show()
+
+def showParamsDialog(*args, **kwargs):
+	""" Show the parameter dialog. """
+	apiMethod = args[0].get_text().lower()
+	if apiMethod in mainObj.apiMethods and len(mainObj.apiMethods[apiMethod].inputParams()) > 0:
+		mainObj.widgets['methodLabel'].set_text(args[0].get_text())
+		configWindows.buildParamTreeStore(apiMethod)
+		mainObj.widgets['paramsDialog'].set_title('Method Parameters: ' + args[0].get_text())
+		mainObj.widgets['paramsDialog'].show()
 
 def saveConnDialog(*args, **kwargs):
 	""" Save the connection Settings. """
 	mainObj.connParams = sptFunctions.getConnParams()
 	mainObj.stormConn.changeBase(**mainObj.connParams)
+
+def saveParams(*args, **kwargs):
+	""" Save the parameters for the currently active method. """
+	apiMethod = args[0].get_text().lower()
+	
+	def treeToDict(store, treeiter):
+		"""
+		Process the tree to get parameter components, and ultimately the whole set.
+		Row Index 0: Key
+		Row Index 2: Value 
+		"""
+		while treeiter != None:
+			# Determine if returning a dict or a listValue to thisLevelData. #
+			# If thisLevelData has not been defined yet, define it to the type that matches first.#
+			# If type match doesn't happen, well, whupz, you get an error. I should make it pop a dialog. #
+			key = store[treeiter][0]
+			if key == '':
+				if 'thisLevelData' not in locals():
+					thisLevelData = []
+				isListVal = True
+			else:
+				if 'thisLevelData' not in locals():
+					thisLevelData = {}
+				isListVal = False
+
+			# If no children, take the value set in the row #
+			if store.iter_has_child(treeiter):
+				childiter = store.iter_children(treeiter)
+				value = treeToDict(store, childiter)
+			else:
+				value = store[treeiter][1]
+
+			if isListVal:
+				thisLevelData.append(value)
+			else:
+				thisLevelData[key] = value
+
+			treeiter = store.iter_next(treeiter)
+
+		return thisLevelData
+	
+	store = mainObj.widgets['paramStore']
+	initIter = mainObj.widgets['paramStore'].get_iter_first()
+	methodObj = mainObj.apiMethods[apiMethod]
+	apiParams = treeToDict(store, initIter)
+
+	methodObj.addParams(**apiParams)
 
 def testConn(*args, **kwargs):
 	""" Test the connection settings as entered. """
