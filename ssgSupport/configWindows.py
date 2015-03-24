@@ -186,13 +186,17 @@ def buildParamTreeStore(methodName):
 	w['paramCellValue'].connect('edited', valueEdited)
 	w['paramCellKey'].connect('edited', keyEdited)
 	w['paramCellUse'].connect('toggled', toggleCheck)
-	w['paramView'].connect('row-activated', addChild)
+	#w['paramView'].connect('row-activated', addChild) ### Disabled until I can get params to even save..
 
 	w['paramStore'].clear()
 
 	apiMethod = mainObj.apiMethods[methodName]
-	if len(apiMethod.listParams()) == 0: # Stock buildout with all the things
-		for k, v in apiMethod.inputParams().iteritems():
-			w['paramStore'].append(None, [k, 'Value here', False])
-	else: # Use existing params
-		iterToStore(apiMethod.listParams())
+	for k, v in apiMethod.inputParams().iteritems(): # Generate the params, and populate values if already set for the method
+		initValue = {}
+		if k in apiMethod.listParams():
+			initValue['value'] = apiMethod.listParams()[k]
+			initValue['flag'] = True
+		else:
+			initValue['value'] = 'Value Here'
+			initValue['flag'] = False
+		w['paramStore'].append(None, [k, initValue['value'], initValue['flag']])

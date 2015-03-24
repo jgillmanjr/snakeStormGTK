@@ -70,38 +70,48 @@ def saveParams(*args, **kwargs):
 			# Determine if returning a dict or a listValue to thisLevelData. #
 			# If thisLevelData has not been defined yet, define it to the type that matches first.#
 			# If type match doesn't happen, well, whupz, you get an error. I should make it pop a dialog. #
-			key = store[treeiter][0]
-			if key == '':
-				if 'thisLevelData' not in locals():
-					thisLevelData = []
-				isListVal = True
-			else:
-				if 'thisLevelData' not in locals():
-					thisLevelData = {}
-				isListVal = False
+			# Also, just ignore the row if the checkbox isn't checked #
+			if store[treeiter][2]:
+				key = store[treeiter][0]
+				useParam = store[treeiter][2]
+				if key == '':
+					if 'thisLevelData' not in locals():
+						thisLevelData = []
+					isListVal = True
+				else:
+					if 'thisLevelData' not in locals():
+						thisLevelData = {}
+					isListVal = False
 
-			# If no children, take the value set in the row #
-			if store.iter_has_child(treeiter):
-				childiter = store.iter_children(treeiter)
-				value = treeToDict(store, childiter)
-			else:
-				value = store[treeiter][1]
+				# If no children, take the value set in the row #
+				if store.iter_has_child(treeiter):
+					childiter = store.iter_children(treeiter)
+					value = treeToDict(store, childiter)
+				else:
+					value = store[treeiter][1]
 
-			if isListVal:
-				thisLevelData.append(value)
-			else:
-				thisLevelData[key] = value
+				if isListVal:
+					thisLevelData.append(value)
+				else:
+					thisLevelData[key] = value
 
-			treeiter = store.iter_next(treeiter)
+			treeiter = store.iter_next(treeiter) # On to the next row
 
-		return thisLevelData
+		if 'thisLevelData' in locals(): # If we actually saved params
+			return thisLevelData
+		else:
+			return False
 	
 	store = mainObj.widgets['paramStore']
 	initIter = mainObj.widgets['paramStore'].get_iter_first()
 	methodObj = mainObj.apiMethods[apiMethod]
 	apiParams = treeToDict(store, initIter)
 
-	methodObj.addParams(**apiParams)
+	if apiParams: # Only run the method if we have params
+		methodObj.clearParams() # This way we don't have anything left over that shouldn't be
+		methodObj.addParams(**apiParams)
+	else:
+		methodObj.clearParams() # If there was anything set, it shouldn't be now
 
 def testConn(*args, **kwargs):
 	""" Test the connection settings as entered. """
